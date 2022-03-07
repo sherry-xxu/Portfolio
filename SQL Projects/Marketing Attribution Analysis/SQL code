@@ -1,0 +1,88 @@
+## understand the campaigns and sources the company uses
+
+## find distinct utm_campaign and utm_source
+SELECT DISTINCT utm_campaign
+FROM page_visits;
+
+SELECT DISTINCT utm_source
+FROM page_visits;
+
+## see how utm_campaign and utm_source are related
+SELECT DISTINCT
+  utm_campaign,
+  utm_source
+FROM page_visits;
+
+## what pages are on the website
+SELECT DISTINCT page_name
+FROM page_visits;
+
+
+## how many first- and last-touches is each campaign responsible for
+
+## count all first_touch timestamps for each campaign
+WITH first_touch AS
+(SELECT
+  user_id,
+  MIN(timestamp) AS first_touch_at
+FROM page_visits
+GROUP BY user_id
+)
+SELECT
+  pv.utm_campaign,
+  COUNT(ft.first_touch_at) AS number_of_first_touch
+FROM page_visits AS pv
+JOIN first_touch AS ft
+  ON pv.user_id = ft.user_id
+  AND pv.timestamp = ft.first_touch_at
+GROUP BY 1
+ORDER BY 2 DESC;
+
+
+## count all last_touch timestamps for each campaign
+WITH last_touch AS
+(SELECT
+  user_id,
+  MAX(timestamp) AS last_touch_at
+FROM page_visits
+GROUP BY user_id
+)
+SELECT
+  pv.utm_campaign,
+  COUNT(lt.last_touch_at) AS number_of_last_touch
+FROM page_visits AS pv
+JOIN last_touch AS lt
+  ON pv.user_id = lt.user_id
+  AND pv.timestamp = lt.last_touch_at
+GROUP BY 1
+ORDER BY 2 DESC;
+
+
+## how many visitors make a purchase
+SELECT
+  COUNT(*)
+FROM page_visits
+WHERE page_name LIKE '4%';
+
+
+## how many last touches on the purchase page is each campaign responsible for
+
+## The code should be similar to step 2’s last touch part, but with a WHERE clause
+WITH last_touch AS
+(SELECT
+  user_id,
+  MAX(timestamp) AS last_touch_at
+FROM page_visits
+GROUP BY user_id
+)
+SELECT
+  pv.utm_campaign,
+  pv.utm_source,
+  COUNT(lt.last_touch_at) AS num_of_last_touch
+FROM page_visits AS pv
+JOIN last_touch AS lt
+  ON pv.user_id = lt.user_id
+  AND pv.timestamp = lt.last_touch_at
+WHERE pv.page_name LIKE '4%'
+GROUP BY 1, 2
+ORDER BY 3 DESC;
