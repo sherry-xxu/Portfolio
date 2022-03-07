@@ -8,3 +8,6 @@ This repository contains data analysis projects using _Python and SQL_.
 - Seaborn
 - Scipy.stats
 - Statsmodels.api
+- BeautifulSoup
+- Regular Expression
+- Requests
